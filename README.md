@@ -1,2 +1,2 @@
 # Embeded Programming Basics
-Exploring embeded programming in Cusing avr based controllers.
+Exploring embeded programming in C using avr based controllers.
