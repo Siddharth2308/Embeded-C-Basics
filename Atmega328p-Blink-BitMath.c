@@ -20,7 +20,7 @@ int main(void)
     while (1) 
     {
 		//Full blink code
-		
+
 		PORTB ^= 0xFF;//instead of on/off a  toggle logic
 		_delay_ms(BLINK_MS);
 
@@ -29,21 +29,23 @@ int main(void)
 		for (int i = 7; i >= 0; i--)
 		{
 			temp = blink_reverse[i];
+			PORTB = 0x00;
 			PORTB |= temp;
 			_delay_ms(15);
 		}
+	
 
 		// Top to bottom Single
 		PORTB = 0x00;
 		for (int i = 0; i < 8; i++){
-			temp = blink_reverse[i];
-			PORTB |= temp;
+			PORTB = 0b00000001<<i;
 			_delay_ms(15);
 		}
 		//Mid to end
 		PORTB = 0x00;
 		for (int i= 3; i >= 0; i--)
 		{
+			PORTB = 0x00;
 			temp = blink_mid[i];
 			PORTB |= temp;
 			_delay_ms(50);
@@ -52,6 +54,7 @@ int main(void)
 		//End to Mid
 		PORTB = 0x00;
 		for (int i = 0; i < 4; i++){
+			PORTB = 0x00;
 			temp = blink_mid[i];
 			PORTB |= temp;
 			_delay_ms(50);
@@ -60,8 +63,8 @@ int main(void)
 		// Alternate Blink
 		PORTB = 0x00;
 		PORTB ^= 0x55; //0b01010100
-		_delay_ms(BLINK_MS);
-				
+		_delay_ms(BLINK_MS);				
+		
     }
 }
 
