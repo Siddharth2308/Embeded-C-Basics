@@ -1,2 +1,2 @@
-# Atmel-Studio-Basics
-Exploring atmel studios for embeded programming.
+# Embeded Programming Basics
+Exploring embeded programming in Cusing avr based controllers.
