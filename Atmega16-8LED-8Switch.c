@@ -31,14 +31,6 @@ int main(void)
 		{
 			PORTB |= 0x01;
 		}
-		else if (bit_is_set(PINC,PC1))
-		{
-			PORTB |= 0x02;
-		}
-		else if (bit_is_set(PINC,PC2))
-		{
-			PORTB |= 0x04;
-		}
 		 else{ PORTB = 0x00; }
 			 */
     }
