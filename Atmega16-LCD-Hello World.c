@@ -7,6 +7,7 @@
 
 #define F_CPU 8000000UL
 #include <avr/io.h>
+#include <stdio.h>
 #include <util/delay.h>
 //Macrosssssssssszzzz
 #define Data_Dir DDRA
@@ -81,11 +82,23 @@ void lcd_clear()
 int main()
 {
 	lcd_init();
+	
+	int counter = 0;
+	char buffer[20];
+	
+
+	
+	command(0x80);
+	lcd_string("Hello World !!");
+	
 	while(1)
 	{
-		lcd_string("Hello World !!");
+
 		command(0xC0);
-		lcd_string("Test");
+		counter = counter + 1;
+		sprintf(buffer,"%d",counter);
+		lcd_string(buffer);
+		_delay_ms(1000);
 	}
 }
 
