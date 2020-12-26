@@ -12,7 +12,7 @@ int main(void)
 {
 	//DDRB |= 0x20;//0b00100000; This is a trial to set a particular bit to high
 	//DDRB |= _BV(PORTB) - Alternative method
-	DDRB |= 0xFF; //ALl pins are intentionally set to high to test out patterns(Don't really need a bitwise or hear)
+	DDRB |= 0xFF; //ALl pins are intentionally set to high to test out patterns(Don't really need a bitwise or here)
 	int temp;
 	int blink_mid[4] = {0x81,0x42,0x24,0x18};
 	int blink_reverse[8] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};
