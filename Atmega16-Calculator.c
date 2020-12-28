@@ -232,13 +232,13 @@ void cal_op(void)
 	else if (key == 0x0B) //multiplication
 	{
 		key = 0;
-		op = 2;
+		op = 3;
 		op_char = 'x';
 	}
 	else if (key == 0x0A) //division
 	{
 		key = 0;
-		op = 3;
+		op = 4;
 		op_char = '/';
 	}
 	else if ( key == 0x0E) //execution
