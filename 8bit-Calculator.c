@@ -1,0 +1,137 @@
+/*
+ * LCD-8bit-Calculator.c
+ *
+ * Created: 26-12-2020 19:58:32
+ * Author : Siddharth
+ */ 
+
+#define F_CPU 8000000UL
+#include <avr/io.h>
+#include <stdio.h>
+#include <util/delay.h>
+
+//Macrosssssssssszzzz
+#define Data_Dir DDRA
+#define Cmd_Dir DDRB
+#define Data_Port PORTA
+#define Cmd_Port PORTB
+#define RS PB7
+#define Enable PB6
+
+//--------------------------------------------------------------------------------------Final Code-----------------------------------------------------------------------------------------
+
+void command(unsigned char cmd)
+{
+	Data_Port = cmd;
+	Cmd_Port &= ~(1<<RS); // RS = 0.
+	Cmd_Port |= (1<<Enable); // Enable E = 0. RW connected to gnd so 0.
+	_delay_us(1);
+	Cmd_Port &= ~(1<<Enable);
+	_delay_ms(3);
+}
+
+void lcd_init(void)
+{
+	Cmd_Dir = 0xFF;
+	Data_Dir = 0xFF;
+	_delay_ms(20);
+	// Same Initializing sequence from the first code.
+	command(0x38);
+	command(0x0C);
+	command(0x06);
+	command(0x01);
+	command(0x80);
+}
+
+void lcd_char(unsigned char char_data)
+{
+	Data_Port = char_data;
+	Cmd_Port |= (1<<RS);
+	Cmd_Port |= (1<<Enable);
+	_delay_us(1);
+	Cmd_Port &= ~(1<<Enable);
+	_delay_ms(1);
+}
+
+void lcd_string(char *str)
+{
+	int i;
+	for(i=0;str[i]!=0;i++)
+	{
+		lcd_char(str[i]);
+	}
+}
+
+void lcd_string_xy(char row, char pos, char *str)
+{
+	if (row == 0 && pos<16 )
+	{
+		command((pos & 0x0F) | 0x80);
+	} else if (row == 1 && pos<16)
+	{
+		command((pos & 0x0F) | 0xC0);
+		lcd_string(str);
+	}
+}
+
+void lcd_clear()
+{
+	command(0x01);
+	command(0x80);
+}
+
+
+int main()
+{
+	lcd_init();
+	PINC = 0xFF;
+	PIND = 0xFF;
+	PINB = 0xFF;
+
+	int sum1;
+	int sum2;
+	unsigned int result;
+	char sum_container1[20];
+	char sum_container2[20];
+	char buffer[20];
+	
+	while(1)
+	{
+		sum1 = (-(PINC-0xFF));
+		sum2 = (-(PIND-0xFF));
+
+		sprintf(sum_container1,"%d",sum1);
+		sprintf(sum_container2,"%d",sum2);
+		command(0x80);
+		lcd_string(sum_container1);
+		
+		//Computing the Output
+		if (PINB == 0b10111101 )
+		{
+			result = sum1 + sum2;
+			lcd_string("+");
+		} else if (PINB == 0b10111011)
+		{
+			result = sum1 - sum2;
+			lcd_string("-");
+		} else if (PINB == 0b10110111)
+		{
+			result = sum1 * sum2;
+			lcd_string("*");
+		} else if (PINB == 0b10101111)
+		{
+			result = sum1 / sum2;
+			lcd_string("/");
+
+		}
+		 
+		 
+		//Displaying the result in required format
+		lcd_string(sum_container2);
+		command(0xC0);		
+		sprintf(buffer,"%d",result);
+		lcd_string(buffer);
+		_delay_ms(1000);
+		command(0x01);
+	}
+}
