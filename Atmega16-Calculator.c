@@ -17,9 +17,6 @@
 #define RS PB7
 #define Enable PB6
 //Macros for keypad.
-#define key_port PORTC
-#define key_ddr DDRC
-#define key_pin PINC
 #define  clr_bit(reg,pos) reg &=~(1<<pos)
 
 //Setting Up the LCD functions.
@@ -65,16 +62,13 @@ void lcd_string(char *str)
 	}
 }
 
-void lcd_string_xy(char row, char pos, char *str)
+void LCD_String_xy (char row, char pos, char *str)/* Send string to LCD with xy position */
 {
-	if (row == 0 && pos<16 )
-	{
-		command((pos & 0x0F) | 0x80);
-	} else if (row == 1 && pos<16)
-	{
-		command((pos & 0x0F) | 0xC0);
-		lcd_string(str);
-	}
+	if (row == 0 && pos<16)
+	command((pos & 0x0F)|0x80);	/* Command of first row and required position<16 */
+	else if (row == 1 && pos<16)
+	command((pos & 0x0F)|0xC0);	/* Command of first row and required position<16 */
+	lcd_string(str);		/* Call LCD string function */
 }
 
 void lcd_clear()
@@ -83,108 +77,6 @@ void lcd_clear()
 	command(0x80);
 }
 
-unsigned char keypad[4][4] = {
-							  {'7','4','1',' '},
-							  {'8','5','2','0'},
-							  {'/','*','-','+'},
-							  {'9','6','3','='}
-							  };
-
-/*
-char keyfinder()
-{
-	while(1)
-	{
-		key_ddr = 0xF0; //setting ports as I/O.
-		key_port = 0xFF;
-		
-		do 
-		{
-			key_port &= 0x0F; //Masking port to read columns only
-//			asm("NOP");
-			columnN = (key_pin & 0x0F); //Reading columns
-		} while (columnN !=0x0F);
-		do 
-		{
-			do 
-			{
-				_delay_ms(20);//for key debounce
-				columnN = (key_pin & 0x0F);//Read column
-			} while (columnN == 0x0F); //check if any key is pressed
-			_delay_ms(40);//for key debounce
-			columnN = (key_pin & 0x0F);
-		} while (columnN == 0x0F);
-		
-		//Checking Rows
-		key_port = 0xEF; //check for key press in first row
-//		asm("NOP");
-		columnN = (key_pin & 0x0F);
-		if (columnN != 0x0F)
-		{
-			rowN = 0;
-			break;
-		}
-		key_port = 0xDF; //check for key press in second row
-//		asm("NOP");
-		columnN = (key_pin & 0x0F);
-		if (columnN != 0x0F)
-		{
-			rowN = 1;
-			break;
-		}
-		key_port = 0xBF; //check for key press in third row
-//		asm("NOP");
-		columnN = (key_pin & 0x0F);
-		if (columnN != 0x0F)
-		{
-			rowN = 3;
-			break;
-		}
-		key_port = 0x7F; //check for key press in fourth row
-//		asm("NOP");
-		columnN = (key_pin & 0x0F);
-		if (columnN != 0x0F)
-		{
-			rowN = 3;
-			break;
-		}
-	}
-	if(columnN == 0x0E){
-		return (keypad[rowN][0]);
-	} else if (columnN == 0x0D){
-		return (keypad[rowN][1]);
-	} else if (columnN == 0x0B){
-		return (keypad[rowN][2]);		
-	} else {
-		return (keypad[rowN][3]);
-	}
-}
-
-void search()
-{
-	x = x & 0x0F;
-	char  temp = database[r1][0];
-	char temp2 = database[r1][1];
-	char temp3 = database[r1][2];
-	
-	if (x == 0x0E)
-	{
-		lcd_string(temp);
-	}
-	if (x == 0x0D)
-	{
-		lcd_string(temp2);
-	}
-	if (x == 0x0B)
-	{
-		lcd_string(temp3);
-	}
-	if (x == 0x07)
-	{
-		lcd_string(database[r1][3]);
-	}
-}*/
-//FInal Code here DOnot use keyfinder or search
 void  key_init(void)
 {
 	DDRC = 0x0F; // PC0-PC3 outputs rows 	
@@ -314,7 +206,7 @@ static unsigned int key; //variable to store pressed key
 static unsigned int op; //variable to store operation ID 
 static char op_char; //op_char for operation model
 long  int a, b; // variables to store two numbers of operation
-static double result;
+long int result;
 static char lcd_buffer[16]; // buffer array for conversion
 
 void cal_init(void)
@@ -376,37 +268,28 @@ void cal_run(void)
 		//command(0x80);
 		a = a * 10 + key; // storing n number of digits
 		sprintf(lcd_buffer,"%1li",a);
-		lcd_string(lcd_buffer);
+		LCD_String_xy(0,0,lcd_buffer);
 	}
 	// If operation is selected start storing the second value
 	else if (op == 1 || op == 2 || op == 3 || op == 4)
 	{
 		b = b * 10 + key;
-		sprintf(lcd_buffer,"%c%1li",op_char,b); // TO display both numbers at the same time through the array
-		lcd_string(lcd_buffer);
+		sprintf(lcd_buffer,"%1li%c%1li",a,op_char,b); // TO display both numbers at the same time through the array
+		LCD_String_xy(0,0,lcd_buffer);
 	}
 	else if ( op == 5) //if = is selected
 	{
 		if ( op_char == '+')
-		{
 			result = a + b;
-		}
 		else if (op_char == '-')
-		{
 			result = a - b;
-		}
 		else if (op_char == 'x')
-		{
 			result = a * b;
-		}
 		else if (op_char == '/')
-		{
-			result = (float)a / b;
-		}
+			result = a / b;
 		//Result
-		command(0xC0);
-		sprintf(lcd_buffer,"=%.2f",result);
-		lcd_string(lcd_buffer);
+		sprintf(lcd_buffer,"=%li",result);
+		LCD_String_xy(1,0,lcd_buffer);
 		//clear memory for next operation
 		a = 0;
 		b = 0;
@@ -426,16 +309,6 @@ void calculator(void)
 	}
 }
 
-
-//shit code below
-/*
-char database[4][4] = {' ','0','=','+','1','2','3','-','4','5','6','*','7','8','9','/'};
-unsigned char columnN, rowN;
-int r1 = 0, c1=0;
-int x = 0;
-*/
-
-
 int main(void)
 {
 	cal_init();
@@ -445,49 +318,5 @@ int main(void)
     while (1) 
     {
 		calculator();
-		//command(0xC0); //change cursor to beginning of second line.
-		
-		//lcd_char(keyfinder());
-		//New code
-		/*
-		while(1){
-			x = PINC;
-			if (x != 0x0F)
-			{
-				break;
-			}
-		}
-		PORTC = 0xEF;
-		x = PINC;
-		if(x!=0XEF)
-		{
-			r1=0;
-			search();
-		}
-		PORTC = 0xDF;
-		x = PINC;
-		if (x != 0xDF)
-		{
-			r1 = 1;
-			search();
-		}
-		PORTC = 0xBF;
-		x = PINC;
-		if (x != 0xBF)
-		{
-			r1 = 2;
-			search();
-		}
-		PORTC = 0x7F;
-		x = PINC;
-		if (x != 0x7F)
-		{
-			r1 = 3;
-			search();
-		}
-		
-		
-	*/	
     }
 }
-
