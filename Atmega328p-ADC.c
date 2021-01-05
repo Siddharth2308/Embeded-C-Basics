@@ -125,7 +125,7 @@ int main(void)
 
 ISR(TIMER0_OVF_vect)
 {
-	OCR0A = dutyCycle;
+	OCR0A = dutyCycle; //refer pwm code
 }
 
 ISR(ADC_vect)
