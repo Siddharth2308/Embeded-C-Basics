@@ -5,7 +5,7 @@
  * Author : Siddharth
  */ 
 
-#define F_CPU	20000000
+#define F_CPU	16000000
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
