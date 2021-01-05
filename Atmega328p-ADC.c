@@ -10,8 +10,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stdio.h>
 
-double dutyCycle = 0;
+long dutyCycle = 0;
 
 //LCD
 #define Data_Dir DDRB
@@ -92,24 +93,24 @@ void ADC_Convert()
 
 void Setup_ADC()
 {
-	ADMUX = (1 << REFS0) | (1 << MUX0) | (1 << MUX2); // Page 217 of datasheet MUX0 and 2 define where the pins are connected
+	ADMUX = (1 << REFS0) | (1 << MUX0) | (1 << MUX1); // Page 217 of datasheet MUX0 and 2 define where the pins are connected
 	//ADCSRA is the control status register
 	ADCSRA = (1 << ADEN) | (1 << ADIE) | (1 << ADPS0) | (1 << ADPS1) | (1 << ADPS2); // ADPS sets the prescaler to 128 most reliable page 219
 	DIDR0 = ( 1 << ADC5D); // Digital Input buffer
 	ADC_Convert();
 }
 
+char lcd_buffer[16];
 
 int main(void)
 {
-	DDRD = (1 << PORTD6);
-	
 	TCCR0A = (1 << COM0A1) | (1 << WGM00) | (1 << WGM01);
 	TIMSK0 = (1 << TOIE0);
 	
 	Setup_ADC();
 	lcd_init();
-	lcd_string("Hello WOrld");
+	sprintf(lcd_buffer,"%1li",dutyCycle);
+	lcd_string(lcd_buffer);
 	
 	sei(); //set external interrupt
 	
