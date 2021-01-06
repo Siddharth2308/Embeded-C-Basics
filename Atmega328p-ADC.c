@@ -130,6 +130,6 @@ ISR(TIMER0_OVF_vect)
 
 ISR(ADC_vect)
 {
-	dutyCycle = ADC;
+	dutyCycle = ADC*0.249266;//10bit to 8 bit cross if 255 : 1023 X : ? 
 	ADC_Convert();
 }
