@@ -24,7 +24,7 @@ void loop()
   {
     remap = map(data,0,defultData-1,255,0);        
   } else if(data >= defultData) {
-    remap = map(data,defultData,1023,0,255);
+    remap = map(data,defultData,1023,0,255);//analogRead(A0)/4 Better
   }
   Serial.println("Remapped Value: ");
   Serial.println("Default Value: ");
